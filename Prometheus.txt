@@ -1,0 +1,230 @@
+### **Prometheus for DevOps Engineers**  
+Prometheus is an **open-source monitoring and alerting tool** used to collect and query **metrics** from various sources, such as servers, containers, and applications. It is widely used in **Kubernetes, CI/CD pipelines, and cloud monitoring**.
+
+---
+
+## **1. Installing Prometheus (Ubuntu 20.04/22.04 & CentOS 7/8)**  
+
+### **📌 Install Prometheus on Ubuntu**  
+```sh
+sudo useradd --no-create-home --shell /bin/false prometheus
+sudo mkdir /etc/prometheus /var/lib/prometheus
+
+cd /tmp
+wget https://github.com/prometheus/prometheus/releases/latest/download/prometheus-2.47.0.linux-amd64.tar.gz
+tar xzf prometheus-2.47.0.linux-amd64.tar.gz
+cd prometheus-2.47.0.linux-amd64
+
+sudo mv prometheus /usr/local/bin/
+sudo mv promtool /usr/local/bin/
+sudo mv consoles/ console_libraries/ prometheus.yml /etc/prometheus/
+```
+
+### **📌 Create Prometheus Systemd Service**  
+```sh
+sudo nano /etc/systemd/system/prometheus.service
+```
+Paste the following:
+```ini
+[Unit]
+Description=Prometheus Monitoring System
+After=network.target
+
+[Service]
+User=prometheus
+ExecStart=/usr/local/bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/var/lib/prometheus
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### **📌 Start & Enable Prometheus**  
+```sh
+sudo systemctl daemon-reload
+sudo systemctl start prometheus
+sudo systemctl enable prometheus
+sudo systemctl status prometheus
+```
+
+### **📌 Access Prometheus Web UI**  
+📌 Open browser: `http://<server-ip>:9090`  
+
+---
+
+## **2. Essential Prometheus Commands for DevOps Engineers**  
+
+### **🔹 Managing Prometheus Service**  
+- `sudo systemctl start prometheus` – Start Prometheus  
+- `sudo systemctl stop prometheus` – Stop Prometheus  
+- `sudo systemctl restart prometheus` – Restart Prometheus  
+- `sudo systemctl status prometheus` – Check Prometheus status  
+- `sudo systemctl enable prometheus` – Enable auto-start  
+
+### **🔹 Prometheus Logs & Debugging**  
+- `sudo journalctl -u prometheus -f` – View real-time logs  
+- `cat /var/log/prometheus.log` – Check logs for errors  
+
+---
+
+## **3. Configuring Prometheus**  
+
+### **📌 Edit Prometheus Configuration (`/etc/prometheus/prometheus.yml`)**
+```yaml
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'node_exporter'
+    static_configs:
+      - targets: ['192.168.1.100:9100']
+```
+Reload Prometheus:
+```sh
+sudo systemctl restart prometheus
+```
+
+---
+
+## **4. Adding Exporters for System Metrics**  
+
+### **📌 Install Node Exporter (System Metrics)**
+```sh
+cd /tmp
+wget https://github.com/prometheus/node_exporter/releases/latest/download/node_exporter-1.5.0.linux-amd64.tar.gz
+tar xzf node_exporter-1.5.0.linux-amd64.tar.gz
+sudo mv node_exporter-1.5.0.linux-amd64/node_exporter /usr/local/bin/
+```
+
+### **📌 Start Node Exporter**
+```sh
+nohup node_exporter > /dev/null 2>&1 &
+```
+📌 Access: `http://<server-ip>:9100/metrics`  
+
+### **📌 Verify Node Exporter in Prometheus**
+Run this in **Prometheus Web UI → Graph → Execute**  
+```promql
+node_memory_Active_bytes
+```
+
+---
+
+## **5. Querying Metrics in Prometheus**  
+
+### **📌 Basic PromQL Queries**  
+- `up` – Check if monitored targets are up  
+- `node_cpu_seconds_total` – CPU usage  
+- `rate(node_cpu_seconds_total[5m])` – CPU usage rate in last 5 min  
+- `node_memory_Active_bytes` – Memory usage  
+- `rate(http_requests_total[1m])` – HTTP request rate  
+
+---
+
+## **6. Setting Up Alerts with Alertmanager**  
+
+### **📌 Install Alertmanager**
+```sh
+cd /tmp
+wget https://github.com/prometheus/alertmanager/releases/latest/download/alertmanager-0.26.0.linux-amd64.tar.gz
+tar xzf alertmanager-0.26.0.linux-amd64.tar.gz
+sudo mv alertmanager-0.26.0.linux-amd64/alertmanager /usr/local/bin/
+sudo mv alertmanager-0.26.0.linux-amd64/amtool /usr/local/bin/
+```
+
+### **📌 Configure Alertmanager (`/etc/prometheus/alertmanager.yml`)**
+```yaml
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: 'email-alert'
+
+receivers:
+  - name: 'email-alert'
+    email_configs:
+      - to: 'admin@example.com'
+        from: 'prometheus@example.com'
+        smarthost: 'smtp.example.com:587'
+```
+### **📌 Start Alertmanager**
+```sh
+nohup alertmanager > /dev/null 2>&1 &
+```
+
+---
+
+## **7. Monitoring Kubernetes with Prometheus**  
+
+### **📌 Install Prometheus on Kubernetes**
+```sh
+kubectl create namespace monitoring
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install prometheus prometheus-community/prometheus --namespace monitoring
+```
+### **📌 Check Prometheus Pods in Kubernetes**
+```sh
+kubectl get pods -n monitoring
+```
+### **📌 Access Prometheus in Kubernetes**
+```sh
+kubectl port-forward svc/prometheus-server -n monitoring 9090:80
+```
+📌 Open: `http://localhost:9090`
+
+---
+
+## **8. Integrating Prometheus with Grafana**  
+
+### **📌 Add Prometheus as Data Source in Grafana**
+1️⃣ Open **Grafana Web UI**  
+2️⃣ Go to **Configuration → Data Sources**  
+3️⃣ Click **Add Data Source**  
+4️⃣ Select **Prometheus** and enter:  
+   - **URL:** `http://prometheus.monitoring.svc:9090`  
+5️⃣ Click **Save & Test**  
+
+### **📌 Create a CPU Usage Dashboard**
+- Query:  
+```promql
+rate(node_cpu_seconds_total[5m])
+```
+
+---
+
+## **9. Backup & Restore Prometheus Data**  
+
+### **📌 Backup Prometheus Data**
+```sh
+sudo tar -czf prometheus-backup.tar.gz /var/lib/prometheus
+```
+
+### **📌 Restore Prometheus Data**
+```sh
+sudo tar -xzf prometheus-backup.tar.gz -C /
+sudo systemctl restart prometheus
+```
+
+---
+
+## **10. Best Practices for DevOps Engineers Using Prometheus**  
+✔ **Use Prometheus + Grafana for visualizations**  
+✔ **Set up Alertmanager for proactive alerts**  
+✔ **Monitor Kubernetes, Jenkins, CI/CD pipelines**  
+✔ **Optimize PromQL queries for better performance**  
+✔ **Backup Prometheus data regularly**  
+
+---
+
+### **Summary**  
+✅ **Installation** – Ubuntu, CentOS, Kubernetes  
+✅ **Essential Commands** – Service management, logs, queries, debugging  
+✅ **Monitoring** – Node Exporter, Kubernetes, Alertmanager  
+✅ **Integration** – Prometheus with Grafana & CI/CD  
+
+Would you like help **configuring Prometheus for Jenkins, Docker, or AWS monitoring?** 🚀

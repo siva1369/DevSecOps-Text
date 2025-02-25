@@ -1,0 +1,206 @@
+nagios
+
+### **Nagios for DevOps Engineers**  
+Nagios is an **open-source monitoring tool** that helps track the health of **servers, applications, and network devices**. It provides real-time alerts and helps in proactive issue resolution.
+
+---
+
+## **1. Nagios Installation Process**  
+
+### **📌 Installing Nagios on Ubuntu 20.04 / 22.04**  
+
+1️⃣ **Update System & Install Dependencies**  
+```sh
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y wget unzip apache2 php libapache2-mod-php \
+   php-gd php-mysql libgd-dev libapache2-mod-fcgid \
+   build-essential autoconf automake gcc libc6 make \
+   unzip libssl-dev bc gawk dc gperf
+```
+
+2️⃣ **Create Nagios User & Group**  
+```sh
+sudo useradd -m nagios
+sudo groupadd nagcmd
+sudo usermod -aG nagcmd nagios
+sudo usermod -aG nagcmd www-data
+```
+
+3️⃣ **Download & Compile Nagios**  
+```sh
+cd /tmp
+wget https://assets.nagios.com/downloads/nagioscore/releases/nagios-4.4.14.tar.gz
+tar xzf nagios-4.4.14.tar.gz
+cd nagios-4.4.14
+sudo ./configure --with-nagios-group=nagios --with-command-group=nagcmd
+sudo make all
+sudo make install
+sudo make install-init
+sudo make install-commandmode
+sudo make install-config
+```
+
+4️⃣ **Install & Configure Apache for Nagios Web Interface**  
+```sh
+sudo make install-webconf
+sudo a2enmod rewrite cgi
+sudo systemctl restart apache2
+```
+
+5️⃣ **Set up Web UI Credentials**  
+```sh
+sudo htpasswd -c /usr/local/nagios/etc/htpasswd.users nagiosadmin
+```
+🔹 Enter a password for the `nagiosadmin` user.
+
+6️⃣ **Start Nagios & Enable at Boot**  
+```sh
+sudo systemctl start nagios
+sudo systemctl enable nagios
+```
+
+7️⃣ **Access Nagios Web UI**  
+📌 Open in browser:  
+`http://<server-ip>/nagios`  
+🔹 Login with `nagiosadmin` and the password set earlier.
+
+---
+
+## **2. Essential Nagios Commands for DevOps Engineers**  
+
+### **🔹 Nagios Service Management**  
+- `sudo systemctl start nagios` – Start Nagios service  
+- `sudo systemctl stop nagios` – Stop Nagios service  
+- `sudo systemctl restart nagios` – Restart Nagios service  
+- `sudo systemctl status nagios` – Check if Nagios is running  
+- `sudo systemctl enable nagios` – Enable Nagios at system boot  
+
+### **🔹 Validating Nagios Configuration**  
+- `nagios -v /usr/local/nagios/etc/nagios.cfg` – Check for configuration errors  
+- `cat /usr/local/nagios/var/nagios.log` – View Nagios logs  
+- `journalctl -u nagios --no-pager` – Debug Nagios issues  
+
+---
+
+## **3. Setting Up Remote Monitoring with NRPE**  
+NRPE (Nagios Remote Plugin Executor) is used to monitor remote Linux/Windows servers.
+
+### **📌 Install NRPE on Remote Linux Server**
+```sh
+sudo apt install -y nagios-nrpe-server nagios-plugins
+sudo systemctl enable nrpe
+sudo systemctl start nrpe
+```
+
+### **📌 Allow Nagios Server in NRPE Configuration**
+Edit `/etc/nagios/nrpe.cfg` and add Nagios Server IP:  
+```cfg
+allowed_hosts=127.0.0.1, <Nagios_Server_IP>
+```
+Restart NRPE:  
+```sh
+sudo systemctl restart nagios-nrpe-server
+```
+
+### **📌 Check Remote Server from Nagios**
+Run this on the **Nagios Server**:  
+```sh
+/usr/local/nagios/libexec/check_nrpe -H <Remote_Server_IP>
+```
+Expected output:  
+```
+NRPE v4.0.3
+```
+
+### **📌 Example NRPE Commands**  
+- `./check_nrpe -H <Remote_Server_IP> -c check_load` – Check CPU load  
+- `./check_nrpe -H <Remote_Server_IP> -c check_disk` – Check disk space  
+
+---
+
+## **4. Adding a New Host in Nagios**  
+📌 **Edit Host Configuration (`/usr/local/nagios/etc/objects/hosts.cfg`)**  
+```cfg
+define host {
+    use                     linux-server
+    host_name               webserver1
+    alias                   Web Server 1
+    address                 192.168.1.100
+    max_check_attempts      3
+    notification_interval   60
+    notification_period     24x7
+}
+```
+Reload Nagios:  
+```sh
+sudo systemctl restart nagios
+```
+
+---
+
+## **5. Adding a New Service Check in Nagios**  
+📌 **Edit Service Configuration (`/usr/local/nagios/etc/objects/services.cfg`)**  
+```cfg
+define service {
+    use                 generic-service
+    host_name           webserver1
+    service_description HTTP Check
+    check_command       check_http
+}
+```
+Restart Nagios:  
+```sh
+sudo systemctl restart nagios
+```
+
+---
+
+## **6. Managing Nagios Plugins**  
+- `ls /usr/local/nagios/libexec/` – List available plugins  
+- `./check_ping -H 8.8.8.8 -w 100,20% -c 200,40%` – Ping check  
+- `./check_http -H example.com` – HTTP status check  
+- `./check_disk -w 20% -c 10% -p /` – Disk usage check  
+
+---
+
+## **7. Configuring Alerts & Notifications**  
+📌 **Edit Contact Configuration (`/usr/local/nagios/etc/objects/contacts.cfg`)**  
+```cfg
+define contact {
+    contact_name          admin
+    email                 admin@example.com
+    service_notification_period   24x7
+    host_notification_period      24x7
+}
+```
+Reload Nagios:  
+```sh
+sudo systemctl restart nagios
+```
+
+---
+
+## **8. Debugging Nagios Issues**  
+- `journalctl -u nagios --no-pager` – View Nagios logs  
+- `cat /usr/local/nagios/var/nagios.log` – Check detailed logs  
+- `ps aux | grep nagios` – Verify if Nagios processes are running  
+
+---
+
+## **Best Practices for DevOps Engineers Using Nagios**  
+✔ **Use NRPE for remote monitoring** – Track Linux/Windows servers.  
+✔ **Set up alerts** – Email, Slack, or PagerDuty for quick issue response.  
+✔ **Optimize check intervals** – Avoid excessive CPU usage with well-configured checks.  
+✔ **Monitor Logs & Debug Issues** – Regularly check logs for failures.  
+✔ **Use Nagios Plugins** – Extend monitoring capabilities using community plugins.  
+
+---
+
+### **Summary**  
+✅ **Installation** – Step-by-step guide to install Nagios & NRPE.  
+✅ **Essential Commands** – Service management, Plugins, NRPE, Debugging.  
+✅ **Infrastructure Monitoring** – Monitor servers, applications, and network devices.  
+✅ **Best Practices** – Alerting, Log Monitoring, Performance Optimization.  
+
+Would you like help setting up **Nagios with Slack or PagerDuty for alerting**? 🚀
+

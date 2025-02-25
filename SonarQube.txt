@@ -1,0 +1,163 @@
+### **SonarQube for DevOps Engineers**  
+SonarQube is an **open-source code quality and security analysis tool** used in DevOps pipelines to identify **bugs, vulnerabilities, and code smells**. It supports multiple languages and integrates with tools like **Jenkins, GitHub, GitLab, Bitbucket, and Maven**.
+
+---
+
+## **1. SonarQube Installation**  
+
+### **📌 Install SonarQube on Linux**  
+```sh
+# Install Java (SonarQube requires Java 11+)
+sudo apt update
+sudo apt install openjdk-11-jdk -y
+
+# Add SonarQube user
+sudo useradd -m -d /opt/sonarqube -s /bin/bash sonar
+
+# Download and extract SonarQube
+wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-9.9.3.zip
+sudo unzip sonarqube-9.9.3.zip -d /opt/
+sudo mv /opt/sonarqube-9.9.3 /opt/sonarqube
+sudo chown -R sonar:sonar /opt/sonarqube
+
+# Start SonarQube
+sudo su - sonar
+cd /opt/sonarqube/bin/linux-x86-64
+./sonar.sh start
+```
+
+### **📌 Start & Enable SonarQube as a Service**
+```sh
+sudo systemctl enable sonarqube
+sudo systemctl start sonarqube
+sudo systemctl status sonarqube
+```
+
+### **📌 Access SonarQube**
+- Open browser: `http://localhost:9000`
+- Default login:
+  - **Username:** `admin`
+  - **Password:** `admin`
+
+---
+
+## **2. SonarQube Essential Commands for DevOps Engineers**  
+
+### **🔹 Managing SonarQube Service**
+```sh
+sudo systemctl start sonarqube    # Start SonarQube
+sudo systemctl stop sonarqube     # Stop SonarQube
+sudo systemctl restart sonarqube  # Restart SonarQube
+sudo systemctl status sonarqube   # Check SonarQube status
+```
+
+### **🔹 Running SonarQube Scanner (Maven Project)**
+```sh
+mvn clean verify sonar:sonar \
+  -Dsonar.projectKey=myproject \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.login=admin \
+  -Dsonar.password=admin
+```
+
+### **🔹 Running SonarQube Scanner (Gradle Project)**
+```sh
+./gradlew sonarqube \
+  -Dsonar.projectKey=myproject \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.login=admin
+```
+
+### **🔹 Running SonarQube Scanner (JavaScript/Other Languages)**
+```sh
+sonar-scanner \
+  -Dsonar.projectKey=myproject \
+  -Dsonar.sources=. \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.login=admin
+```
+
+### **🔹 Checking SonarQube Logs**
+```sh
+tail -f /opt/sonarqube/logs/sonar.log
+```
+
+---
+
+## **3. SonarQube Integration with Jenkins**  
+
+### **📌 Install SonarQube Plugin in Jenkins**
+1. Go to **Jenkins Dashboard** → **Manage Jenkins** → **Manage Plugins**.
+2. Install **SonarQube Scanner** plugin.
+3. Configure **SonarQube server** in **Manage Jenkins → Configure System**.
+
+### **📌 Add SonarQube Scanner in Jenkins Pipeline**
+```groovy
+pipeline {
+    agent any
+    stages {
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    withSonarQubeEnv('SonarQube') {
+                        sh 'mvn clean verify sonar:sonar'
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+---
+
+## **4. SonarQube API Commands**  
+
+### **📌 Get Project List**
+```sh
+curl -u admin:admin "http://localhost:9000/api/projects/search"
+```
+
+### **📌 Get Project Analysis Status**
+```sh
+curl -u admin:admin "http://localhost:9000/api/qualitygates/project_status?projectKey=myproject"
+```
+
+### **📌 Create a New SonarQube Project**
+```sh
+curl -u admin:admin -X POST "http://localhost:9000/api/projects/create" \
+     -d "name=MyProject&project=MyProject"
+```
+
+### **📌 Create a New Quality Gate**
+```sh
+curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/create" \
+     -d "name=MyQualityGate"
+```
+
+### **📌 Assign a Quality Gate to a Project**
+```sh
+curl -u admin:admin -X POST "http://localhost:9000/api/qualitygates/select" \
+     -d "projectKey=myproject&gateId=1"
+```
+
+---
+
+## **5. SonarQube Best Practices for DevOps**  
+
+✔ **Use Quality Gates to block bad code**  
+✔ **Integrate SonarQube with CI/CD pipelines**  
+✔ **Enable Static Code Analysis in Jenkins**  
+✔ **Configure SonarQube to detect Security Vulnerabilities**  
+✔ **Monitor technical debt using SonarQube dashboards**  
+✔ **Automate reporting using SonarQube API**  
+
+---
+
+## **6. Summary**  
+✅ **Installation** – SonarQube setup & service management  
+✅ **Essential Commands** – Running scans, checking logs, API calls  
+✅ **CI/CD Integration** – Jenkins pipeline setup  
+✅ **Security & Quality** – Using Quality Gates and Metrics  
+
+Would you like help **configuring SonarQube for GitHub, GitLab, or AWS?** 🚀

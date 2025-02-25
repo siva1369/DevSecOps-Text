@@ -1,0 +1,137 @@
+OWASP
+
+### **OWASP Dependency-Check for DevOps Engineers**  
+OWASP Dependency-Check is an **open-source tool** that scans project dependencies to detect known **security vulnerabilities (CVEs)**. It is widely used in DevOps pipelines to ensure software dependencies are secure.
+
+---
+
+## **1. Installing OWASP Dependency-Check**  
+
+### **📌 Install on Linux/Mac**  
+```sh
+wget https://github.com/jeremylong/DependencyCheck/releases/latest/download/dependency-check-6.5.3-release.zip
+unzip dependency-check-6.5.3-release.zip
+cd dependency-check/bin
+```
+
+### **📌 Install on Windows**  
+1. Download from [GitHub Releases](https://github.com/jeremylong/DependencyCheck/releases).  
+2. Extract and navigate to the `bin/` directory.  
+
+---
+
+## **2. Running OWASP Dependency-Check**  
+
+### **🔹 Scan a Maven Project**
+```sh
+mvn org.owasp:dependency-check-maven:check
+```
+
+### **🔹 Scan a Java Project**
+```sh
+dependency-check.sh --project MyProject --scan /path/to/project
+```
+
+### **🔹 Scan a Directory**
+```sh
+dependency-check.sh --scan /path/to/code --out reports/ --format HTML
+```
+
+### **🔹 Scan a Specific File**
+```sh
+dependency-check.sh --scan /path/to/app.jar
+```
+
+### **🔹 Generate Reports in Multiple Formats**
+```sh
+dependency-check.sh --scan /path/to/project --out reports/ --format XML,JSON,HTML
+```
+
+---
+
+## **3. Integrating OWASP Dependency-Check in CI/CD Pipelines**  
+
+### **📌 Integration in Jenkins**
+1. Install **OWASP Dependency-Check Plugin** in Jenkins.  
+2. Add the following step in a **Jenkins pipeline**:
+```groovy
+stage('Security Scan') {
+    steps {
+        sh 'dependency-check.sh --scan . --out reports/ --format HTML'
+    }
+}
+```
+
+### **📌 Integration in GitHub Actions**
+```yaml
+jobs:
+  security_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Run OWASP Dependency-Check
+        run: |
+          wget https://github.com/jeremylong/DependencyCheck/releases/latest/download/dependency-check-6.5.3-release.zip
+          unzip dependency-check-6.5.3-release.zip
+          ./dependency-check/bin/dependency-check.sh --scan . --out reports/
+```
+
+---
+
+## **4. Managing OWASP Dependency-Check Database**  
+
+### **🔹 Update Vulnerability Database**
+```sh
+dependency-check.sh --updateonly
+```
+
+### **🔹 Suppress False Positives**
+1. Create a `suppressions.xml` file.
+2. Add the suppression rule:
+```xml
+<suppressions>
+    <suppress>
+        <cvssBelow>5.0</cvssBelow>
+    </suppress>
+</suppressions>
+```
+3. Run the scan with suppression:
+```sh
+dependency-check.sh --scan /path/to/code --suppression suppressions.xml
+```
+
+---
+
+## **5. OWASP Dependency-Check API Commands**  
+
+### **🔹 Get the Latest Vulnerability Data**
+```sh
+curl -X GET "https://nvd.nist.gov/vuln/data-feeds"
+```
+
+### **🔹 Query CVE Details**
+```sh
+curl -X GET "https://services.nvd.nist.gov/rest/json/cve/1.0/CVE-2024-1234"
+```
+
+---
+
+## **6. Best Practices for DevOps**  
+
+✔ **Run OWASP Dependency-Check in CI/CD pipelines**  
+✔ **Automate security scans for every pull request**  
+✔ **Regularly update the CVE database**  
+✔ **Suppress false positives with suppression rules**  
+✔ **Monitor security reports in Jenkins dashboards**  
+
+---
+
+## **7. Summary**  
+✅ **Installation** – Linux, Windows, Mac  
+✅ **Essential Commands** – Scanning, updating, suppressing vulnerabilities  
+✅ **CI/CD Integration** – Jenkins, GitHub Actions  
+✅ **Security Best Practices** – Automate and monitor dependency vulnerabilities  
+
+Would you like help **integrating OWASP Dependency-Check with SonarQube or Docker?** 🚀

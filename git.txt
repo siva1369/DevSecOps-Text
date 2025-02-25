@@ -1,0 +1,81 @@
+### **Git for DevOps Engineers**  
+Git is a distributed version control system widely used in DevOps workflows for managing source code, collaborating with teams, and integrating with CI/CD pipelines.  
+
+### **Key Git Concepts for DevOps**  
+- **Repositories**: Stores project code and history. Can be local or remote (GitHub, GitLab, Bitbucket).  
+- **Branches**: Helps in managing feature development, hotfixes, and releases.  
+- **Commits**: Tracks changes made to files.  
+- **Merging & Rebasing**: Integrates changes from different branches.  
+- **Tags**: Used for versioning releases.  
+- **Hooks**: Automates tasks before or after key Git events (useful in CI/CD).  
+
+---
+
+### **Essential Git Commands for DevOps**  
+
+#### **1. Basic Git Commands**  
+- `git init` – Initialize a new Git repository  
+- `git clone <repo-url>` – Clone a remote repository  
+- `git status` – Show the working directory status  
+- `git add <file>` – Stage a specific file  
+- `git add .` – Stage all changes  
+- `git commit -m "Commit message"` – Commit staged changes  
+
+#### **2. Branching & Merging**  
+- `git branch` – List all branches  
+- `git branch <branch-name>` – Create a new branch  
+- `git checkout <branch-name>` – Switch to a branch  
+- `git checkout -b <branch-name>` – Create and switch to a new branch  
+- `git merge <branch-name>` – Merge changes from another branch  
+- `git rebase <branch-name>` – Reapply commits on top of another base  
+
+#### **3. Pushing & Pulling**  
+- `git remote -v` – Show remote repositories  
+- `git fetch` – Fetch changes from the remote repository  
+- `git pull` – Pull the latest changes from remote  
+- `git push origin <branch>` – Push local changes to the remote repository  
+
+#### **4. Undoing & Resetting**  
+- `git reset --soft HEAD~1` – Undo the last commit but keep changes staged  
+- `git reset --hard HEAD~1` – Undo the last commit and remove changes  
+- `git revert <commit-hash>` – Create a new commit that undoes a previous commit  
+- `git checkout -- <file>` – Discard changes in a file  
+
+#### **5. Git Logs & History**  
+- `git log` – View commit history  
+- `git log --oneline` – Compact commit history  
+- `git log --graph --all --decorate --oneline` – Visualize branches  
+- `git diff` – Compare file changes  
+- `git blame <file>` – Show who modified each line  
+
+#### **6. Stashing**  
+- `git stash` – Save uncommitted changes temporarily  
+- `git stash pop` – Apply the last stashed changes  
+- `git stash list` – View all stashed changes  
+- `git stash drop` – Delete a stash  
+
+#### **7. Tags (Useful for Releases)**  
+- `git tag` – List all tags  
+- `git tag -a v1.0 -m "Version 1.0"` – Create an annotated tag  
+- `git push origin --tags` – Push all tags to the remote repository  
+- `git checkout tags/<tag-name>` – Checkout a specific tag  
+
+#### **8. Working with Remote Repositories**  
+- `git remote add origin <repo-url>` – Link a local repo to a remote one  
+- `git push -u origin <branch>` – Push branch and track it remotely  
+- `git remote remove origin` – Remove a remote repository  
+
+#### **9. Git Hooks (For Automation in CI/CD)**  
+- `pre-commit` – Run scripts before committing changes  
+- `pre-push` – Run scripts before pushing to a remote repo  
+- `post-receive` – Run scripts after a push is received (useful for deployments)  
+
+---
+
+### **Git Best Practices for DevOps**  
+✔ Always work on feature branches  
+✔ Use meaningful commit messages  
+✔ Rebase before merging to keep history clean  
+✔ Use `.gitignore` to avoid committing unnecessary files  
+✔ Regularly pull latest changes from the remote repository  
+

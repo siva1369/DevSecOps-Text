@@ -1,0 +1,219 @@
+### **Datadog for DevOps Engineers**  
+Datadog is a **cloud-based monitoring, logging, and security platform** used to track **server performance, cloud infrastructure, containers, applications, and logs**. It supports **Kubernetes, AWS, Azure, Google Cloud, Docker, and CI/CD pipelines**.
+
+---
+
+## **1. Installing Datadog Agent**  
+
+### **📌 Install Datadog Agent on Linux**  
+```sh
+DD_API_KEY=<YOUR_DATADOG_API_KEY> bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script.sh)"
+```
+
+### **📌 Install Datadog Agent on Docker**
+```sh
+docker run -d --name datadog-agent \
+  -e DD_API_KEY=<YOUR_DATADOG_API_KEY> \
+  -e DD_SITE="datadoghq.com" \
+  -e DD_LOGS_ENABLED=true \
+  -e DD_CONTAINER_EXCLUDE="name:datadog-agent" \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  datadog/agent:latest
+```
+
+### **📌 Install Datadog Agent on Kubernetes**
+```sh
+helm repo add datadog https://helm.datadoghq.com
+helm repo update
+helm install datadog-agent datadog/datadog \
+  --set datadog.apiKey=<YOUR_DATADOG_API_KEY> \
+  --set datadog.site="datadoghq.com" \
+  --namespace datadog
+```
+### **📌 Start & Enable Datadog Agent**
+```sh
+sudo systemctl start datadog-agent
+sudo systemctl enable datadog-agent
+```
+
+### **📌 Verify Datadog Agent**
+```sh
+sudo datadog-agent status
+```
+
+---
+
+## **2. Essential Datadog Commands for DevOps Engineers**  
+
+### **🔹 Managing Datadog Agent**
+- `sudo systemctl start datadog-agent` – Start Datadog agent  
+- `sudo systemctl stop datadog-agent` – Stop Datadog agent  
+- `sudo systemctl restart datadog-agent` – Restart Datadog agent  
+- `sudo systemctl status datadog-agent` – Check agent status  
+- `datadog-agent status` – View agent metrics and logs  
+
+### **🔹 Checking Datadog Agent Configuration**
+```sh
+datadog-agent configcheck
+```
+
+### **🔹 View Datadog Agent Logs**
+```sh
+cat /var/log/datadog/agent.log
+```
+
+### **🔹 Test Connectivity to Datadog**
+```sh
+datadog-agent check network
+```
+
+### **🔹 Collect System Metrics**
+```sh
+datadog-agent check system
+```
+
+---
+
+## **3. Configuring Datadog Integrations**  
+
+### **📌 Monitor Nginx**
+1. Enable Nginx module:
+```sh
+sudo nano /etc/datadog-agent/conf.d/nginx.d/conf.yaml
+```
+2. Add the following:
+```yaml
+instances:
+  - nginx_status_url: http://localhost/nginx_status/
+```
+3. Restart Datadog Agent:
+```sh
+sudo systemctl restart datadog-agent
+```
+
+### **📌 Monitor MySQL**
+```sh
+sudo nano /etc/datadog-agent/conf.d/mysql.d/conf.yaml
+```
+```yaml
+instances:
+  - server: localhost
+    user: datadog
+    pass: password
+```
+```sh
+sudo systemctl restart datadog-agent
+```
+
+---
+
+## **4. Monitoring Logs with Datadog**  
+
+### **📌 Enable Log Collection**
+Edit `datadog.yaml`:
+```sh
+sudo nano /etc/datadog-agent/datadog.yaml
+```
+Uncomment and set:
+```yaml
+logs_enabled: true
+```
+Restart Datadog Agent:
+```sh
+sudo systemctl restart datadog-agent
+```
+
+### **📌 Collect Container Logs**
+```sh
+docker logs <container_name> 2>&1 | datadog-agent
+```
+
+### **📌 Collect Application Logs**
+Configure `log_sources.yaml`:
+```yaml
+logs:
+  - type: file
+    path: /var/log/myapp.log
+    service: myapp
+```
+
+---
+
+## **5. Monitoring Kubernetes with Datadog**  
+
+### **📌 Enable Datadog Autodiscovery**
+```sh
+kubectl annotate pod <pod-name> ad.datadoghq.com/service.checks='[{"name": "http", "timeout": 5000}]'
+```
+
+### **📌 View Datadog Kubernetes Metrics**
+```sh
+kubectl get pods -n datadog
+kubectl logs -n datadog <datadog-agent-pod>
+```
+
+---
+
+## **6. Datadog Alerts & Dashboards**  
+
+### **📌 Create a Monitor (Alert) Using CLI**
+```sh
+curl -X POST "https://api.datadoghq.com/api/v1/monitor" \
+-H "Content-Type: application/json" \
+-H "DD-API-KEY: <YOUR_DATADOG_API_KEY>" \
+-d '{
+  "type": "metric alert",
+  "query": "avg(last_5m):avg:system.cpu.user{*} > 80",
+  "name": "High CPU Usage",
+  "message": "CPU usage is above 80%!",
+  "tags": ["team:devops"]
+}'
+```
+
+### **📌 List All Monitors**
+```sh
+curl -X GET "https://api.datadoghq.com/api/v1/monitor" \
+-H "DD-API-KEY: <YOUR_DATADOG_API_KEY>"
+```
+
+### **📌 Create a Dashboard**
+```sh
+curl -X POST "https://api.datadoghq.com/api/v1/dashboard" \
+-H "Content-Type: application/json" \
+-H "DD-API-KEY: <YOUR_DATADOG_API_KEY>" \
+-d '{
+  "title": "DevOps Monitoring Dashboard",
+  "widgets": [
+    {
+      "definition": {
+        "type": "timeseries",
+        "requests": [
+          {"q": "avg:system.cpu.user{*}"}
+        ]
+      }
+    }
+  ]
+}'
+```
+
+---
+
+## **7. Datadog Best Practices for DevOps**  
+
+✔ **Enable Autodiscovery for Docker & Kubernetes**  
+✔ **Use Logs and Metrics to Detect Performance Issues**  
+✔ **Set Up Alerts for CPU, Memory, Disk Usage**  
+✔ **Integrate Datadog with Jenkins, AWS, and Cloud Services**  
+✔ **Create Custom Dashboards for CI/CD Pipelines**  
+✔ **Use Anomaly Detection for Proactive Monitoring**  
+
+---
+
+## **8. Summary**  
+✅ **Installation** – Linux, Docker, Kubernetes  
+✅ **Essential Commands** – Agent status, logs, debugging  
+✅ **Monitoring** – Nginx, MySQL, Kubernetes, Containers  
+✅ **Logging** – Enable and collect logs  
+✅ **Alerts & Dashboards** – Setup monitors and dashboards  
+
+Would you like help **configuring Datadog for Jenkins, AWS, or Kubernetes?** 🚀

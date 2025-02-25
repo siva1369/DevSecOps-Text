@@ -1,0 +1,122 @@
+### **Docker for DevOps Engineers**  
+Docker is a containerization tool that allows you to package applications along with their dependencies, ensuring they run consistently across different environments. It plays a crucial role in DevOps by enabling **CI/CD, microservices deployment, cloud scalability, and orchestration with Kubernetes**.
+
+---
+
+## **Key Docker Concepts**  
+- **Image** – A lightweight, standalone package of software that includes everything needed to run an application.  
+- **Container** – A running instance of a Docker image.  
+- **Dockerfile** – A script defining how to build a Docker image.  
+- **Volumes** – Persistent storage for containers.  
+- **Networks** – Communication between containers.  
+- **Docker Registry** – Storage for Docker images (e.g., Docker Hub, AWS ECR, GCR).  
+- **Docker Compose** – Tool for defining and running multi-container applications.  
+
+---
+
+## **Essential Docker Commands for DevOps**  
+
+### **1. Installation & Service Management**  
+- `docker --version` – Check Docker version  
+- `sudo systemctl start docker` – Start Docker service  
+- `sudo systemctl stop docker` – Stop Docker service  
+- `sudo systemctl restart docker` – Restart Docker service  
+- `sudo systemctl enable docker` – Enable Docker at system startup  
+
+---
+
+### **2. Working with Docker Images**  
+- `docker pull <image>` – Pull an image from Docker Hub  
+- `docker images` – List downloaded images  
+- `docker build -t myapp:v1 .` – Build an image from a Dockerfile  
+- `docker tag myapp:v1 myrepo/myapp:v1` – Tag an image for pushing  
+- `docker push myrepo/myapp:v1` – Push an image to a registry  
+- `docker rmi <image>` – Remove an image  
+
+---
+
+### **3. Running and Managing Containers**  
+- `docker run -d --name mycontainer myapp:v1` – Run a container in detached mode  
+- `docker ps` – List running containers  
+- `docker ps -a` – List all containers  
+- `docker stop <container>` – Stop a running container  
+- `docker start <container>` – Start a stopped container  
+- `docker restart <container>` – Restart a container  
+- `docker rm <container>` – Remove a container  
+- `docker exec -it <container> bash` – Access a running container’s shell  
+- `docker logs -f <container>` – View real-time logs of a container  
+
+---
+
+### **4. Managing Docker Volumes (Persistent Storage)**  
+- `docker volume create myvolume` – Create a volume  
+- `docker volume ls` – List all volumes  
+- `docker volume inspect myvolume` – Inspect volume details  
+- `docker run -d -v myvolume:/data myapp:v1` – Attach a volume to a container  
+- `docker volume rm myvolume` – Remove a volume  
+
+---
+
+### **5. Networking in Docker**  
+- `docker network ls` – List networks  
+- `docker network create mynetwork` – Create a new network  
+- `docker network inspect mynetwork` – View network details  
+- `docker run -d --network mynetwork myapp:v1` – Connect a container to a network  
+- `docker network rm mynetwork` – Delete a network  
+
+---
+
+### **6. Docker Compose (Multi-Container Management)**  
+- `docker-compose up -d` – Start all services in detached mode  
+- `docker-compose down` – Stop and remove all containers  
+- `docker-compose ps` – List running services  
+- `docker-compose logs -f` – View logs of all services  
+
+**Example `docker-compose.yml`:**  
+```yaml
+version: "3"
+services:
+  app:
+    image: myapp:v1
+    ports:
+      - "8080:80"
+    volumes:
+      - myvolume:/data
+    networks:
+      - mynetwork
+
+volumes:
+  myvolume:
+
+networks:
+  mynetwork:
+```
+
+---
+
+### **7. Docker Registry (Push & Pull Images)**  
+- `docker login` – Log in to a registry  
+- `docker tag myapp:v1 myrepo/myapp:v1` – Tag an image  
+- `docker push myrepo/myapp:v1` – Push an image to the registry  
+- `docker pull myrepo/myapp:v1` – Pull an image from the registry  
+
+---
+
+### **8. Cleanup & System Maintenance**  
+- `docker system prune -a` – Remove unused data (images, containers, networks)  
+- `docker container prune` – Remove stopped containers  
+- `docker image prune` – Remove dangling images  
+- `docker volume prune` – Remove unused volumes  
+
+---
+
+## **Docker Best Practices for DevOps**  
+✔ Use **small base images** (e.g., `alpine`) to reduce image size.  
+✔ Avoid using `latest` tag; always **define versions**.  
+✔ Use **multi-stage builds** to optimize image size.  
+✔ Implement **health checks** (`HEALTHCHECK CMD curl -f http://localhost || exit 1`).  
+✔ Use **volumes** for persistent storage.  
+✔ Scan images for vulnerabilities (`docker scan <image>` or **Trivy**).  
+✔ Store images in a **private registry (AWS ECR, GCR, Docker Hub)**.  
+
+These Docker commands and best practices will help you efficiently manage containerized applications in a DevOps workflow. Let me know if you need further details on Kubernetes or CI/CD integration! 🚀

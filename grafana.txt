@@ -1,0 +1,203 @@
+### **Grafana for DevOps Engineers**  
+Grafana is an **open-source visualization and monitoring tool** used to create **interactive dashboards** for metrics, logs, and alerts. It integrates with **Prometheus, Loki, Elasticsearch, InfluxDB, and other data sources** to monitor applications, infrastructure, and CI/CD pipelines.
+
+---
+
+## **1. Installing Grafana (Ubuntu 20.04/22.04 & CentOS 7/8)**  
+
+### **📌 Install Grafana on Ubuntu**
+```sh
+sudo apt update && sudo apt upgrade -y
+wget -q -O - https://packages.grafana.com/gpg.key | sudo apt-key add -
+echo "deb https://packages.grafana.com/oss/deb stable main" | sudo tee /etc/apt/sources.list.d/grafana.list
+sudo apt update && sudo apt install grafana -y
+```
+
+### **📌 Install Grafana on CentOS / RHEL**
+```sh
+sudo yum install -y https://packages.grafana.com/oss/rpm/grafana-9.5.2-1.x86_64.rpm
+```
+
+### **📌 Start & Enable Grafana Service**
+```sh
+sudo systemctl start grafana-server
+sudo systemctl enable grafana-server
+sudo systemctl status grafana-server
+```
+
+### **📌 Access Grafana Web UI**  
+📌 Open browser: `http://<server-ip>:3000`  
+🔹 **Default login:**  
+  - Username: `admin`  
+  - Password: `admin` (change it after the first login)  
+
+---
+
+## **2. Essential Grafana Commands for DevOps Engineers**  
+
+### **🔹 Managing Grafana Service**  
+- `sudo systemctl start grafana-server` – Start Grafana  
+- `sudo systemctl stop grafana-server` – Stop Grafana  
+- `sudo systemctl restart grafana-server` – Restart Grafana  
+- `sudo systemctl status grafana-server` – Check Grafana service status  
+- `sudo systemctl enable grafana-server` – Enable Grafana at boot  
+
+### **🔹 Grafana Logs & Debugging**  
+- `sudo journalctl -u grafana-server -f` – View real-time logs  
+- `sudo tail -f /var/log/grafana/grafana.log` – Check logs for issues  
+
+---
+
+## **3. Configuring Grafana**  
+
+### **📌 Change Default Port (3000 → 8080)**  
+Edit the config file:  
+```sh
+sudo nano /etc/grafana/grafana.ini
+```
+Find `[server]` and update:  
+```ini
+http_port = 8080
+```
+Restart Grafana:  
+```sh
+sudo systemctl restart grafana-server
+```
+
+---
+
+## **4. Adding a Data Source in Grafana**  
+
+### **📌 Add Prometheus as a Data Source**  
+1️⃣ Go to **Grafana Web UI → Settings → Data Sources**  
+2️⃣ Click **Add Data Source**  
+3️⃣ Select **Prometheus** and enter:  
+   - **URL:** `http://localhost:9090`  
+   - **Save & Test**  
+
+### **📌 Add MySQL as a Data Source**
+1️⃣ Install MySQL Plugin:  
+```sh
+grafana-cli plugins install grafana-mysql-datasource
+```
+2️⃣ Restart Grafana:  
+```sh
+sudo systemctl restart grafana-server
+```
+3️⃣ Add MySQL in **Data Sources** section with database credentials.
+
+---
+
+## **5. Creating Dashboards in Grafana**  
+
+### **📌 Create a Dashboard with Prometheus Metrics**
+1️⃣ Go to **Grafana UI → Create → Dashboard**  
+2️⃣ Click **Add New Panel**  
+3️⃣ Select **Prometheus** as the data source  
+4️⃣ Use this PromQL query to monitor CPU usage:  
+```promql
+rate(node_cpu_seconds_total{mode="user"}[5m])
+```
+5️⃣ Click **Apply** to save the panel.
+
+---
+
+## **6. Setting Up Alerts in Grafana**  
+
+### **📌 Create an Alert Rule**
+1️⃣ Open a **Dashboard** → Click on a **Panel**  
+2️⃣ Select **Alerting → Create Alert Rule**  
+3️⃣ Define **Condition** (e.g., CPU > 80%)  
+4️⃣ Choose **Notification Channel** (Slack, Email, etc.)  
+5️⃣ Click **Save Alert Rule**  
+
+### **📌 Add Slack as a Notification Channel**
+1️⃣ Go to **Grafana UI → Alerting → Notification Channels**  
+2️⃣ Click **Add Channel**  
+3️⃣ Select **Slack** and enter the **Webhook URL**  
+4️⃣ Click **Test & Save**  
+
+---
+
+## **7. Managing Grafana Plugins**  
+
+### **📌 Install a Plugin**
+```sh
+grafana-cli plugins install <plugin-name>
+```
+Example:  
+```sh
+grafana-cli plugins install grafana-clock-panel
+```
+Restart Grafana:  
+```sh
+sudo systemctl restart grafana-server
+```
+
+### **📌 List Installed Plugins**
+```sh
+grafana-cli plugins ls
+```
+
+### **📌 Remove a Plugin**
+```sh
+grafana-cli plugins remove <plugin-name>
+```
+
+---
+
+## **8. Grafana Backup & Restore**  
+
+### **📌 Backup Grafana Data**
+```sh
+sudo tar -czf grafana-backup.tar.gz /var/lib/grafana /etc/grafana /var/log/grafana
+```
+
+### **📌 Restore Grafana Data**
+```sh
+sudo tar -xzf grafana-backup.tar.gz -C /
+```
+Restart Grafana:  
+```sh
+sudo systemctl restart grafana-server
+```
+
+---
+
+## **9. Securing Grafana**  
+
+### **📌 Change Admin Password**
+```sh
+grafana-cli admin reset-admin-password NEW_PASSWORD
+```
+
+### **📌 Enable HTTPS**
+Edit `/etc/grafana/grafana.ini` and set:
+```ini
+protocol = https
+cert_file = /etc/grafana/ssl/grafana.crt
+cert_key = /etc/grafana/ssl/grafana.key
+```
+Restart Grafana:  
+```sh
+sudo systemctl restart grafana-server
+```
+
+---
+
+## **10. Best Practices for DevOps Engineers Using Grafana**  
+✔ **Use Dashboards for CI/CD Monitoring** – Track Jenkins, Kubernetes, AWS, etc.  
+✔ **Set Up Alerts** – Slack, Email, PagerDuty for quick notifications.  
+✔ **Integrate with Logging Tools** – Loki, Elasticsearch for centralized logging.  
+✔ **Use Authentication & Role-Based Access Control (RBAC)**.  
+✔ **Optimize Query Performance** – Avoid heavy queries for better performance.  
+
+---
+
+### **Summary**  
+✅ **Installation** – Step-by-step guide for Ubuntu & CentOS.  
+✅ **Essential Commands** – Managing service, logs, backups, and security.  
+✅ **Dashboards & Alerts** – Prometheus, MySQL, Slack, Email notifications.  
+✅ **Security Best Practices** – HTTPS, authentication, access control.  
+
+Would you like help integrating **Grafana with Kubernetes (K8s) or Jenkins?** 🚀

@@ -1,0 +1,207 @@
+### **Kubernetes (K8s) for DevOps Engineers**  
+Kubernetes (K8s) is a **container orchestration platform** that automates the **deployment, scaling, and management** of containerized applications. It is essential for **DevOps engineers** to efficiently manage microservices, CI/CD pipelines, and cloud-native applications.
+
+---
+
+## **Key Kubernetes Concepts for DevOps**  
+- **Cluster:** A group of nodes managing workloads.  
+- **Node:** A worker machine where containers run.  
+- **Pod:** The smallest deployable unit containing one or more containers.  
+- **Deployment:** Manages replicas and ensures application availability.  
+- **Service:** Exposes applications within or outside the cluster.  
+- **Ingress:** Manages external access to services using domain names.  
+- **ConfigMap & Secret:** Stores configuration data securely.  
+- **Persistent Volume (PV) & PVC:** Manages storage for stateful applications.  
+- **Namespace:** Logical partitioning of resources for multi-tenancy.  
+
+---
+
+## **Essential Kubernetes Commands for DevOps Engineers**  
+
+### **1. Cluster & Node Management**  
+- `kubectl version` – Check Kubernetes version  
+- `kubectl cluster-info` – Get cluster details  
+- `kubectl get nodes` – List all cluster nodes  
+- `kubectl describe node <node-name>` – Get details of a node  
+
+---
+
+### **2. Pod Management**  
+- `kubectl get pods` – List all running pods  
+- `kubectl describe pod <pod-name>` – Get detailed pod information  
+- `kubectl delete pod <pod-name>` – Delete a pod  
+- `kubectl logs <pod-name>` – View logs of a pod  
+- `kubectl exec -it <pod-name> -- /bin/sh` – Access a pod's shell  
+
+---
+
+### **3. Deployment Management**  
+- `kubectl create deployment myapp --image=myapp:v1` – Create a deployment  
+- `kubectl get deployments` – List all deployments  
+- `kubectl scale deployment myapp --replicas=3` – Scale a deployment to 3 replicas  
+- `kubectl rollout status deployment myapp` – Check deployment status  
+- `kubectl delete deployment myapp` – Delete a deployment  
+
+---
+
+### **4. Service & Networking**  
+- `kubectl get services` – List all services  
+- `kubectl expose deployment myapp --type=LoadBalancer --port=80` – Expose a deployment  
+- `kubectl delete service myapp` – Delete a service  
+
+---
+
+### **5. ConfigMaps & Secrets**  
+- `kubectl create configmap myconfig --from-literal=key=value` – Create a ConfigMap  
+- `kubectl create secret generic mysecret --from-literal=password=MyP@ssw0rd` – Create a Secret  
+- `kubectl get secret mysecret -o yaml` – View a Secret  
+
+---
+
+### **6. Namespaces**  
+- `kubectl get namespaces` – List all namespaces  
+- `kubectl create namespace dev` – Create a new namespace  
+- `kubectl delete namespace dev` – Delete a namespace  
+
+---
+
+### **7. Storage & Persistent Volumes (PV/PVC)**  
+- `kubectl get pv` – List all persistent volumes  
+- `kubectl get pvc` – List all persistent volume claims  
+- `kubectl delete pvc mypvc` – Delete a PVC  
+
+---
+
+### **8. Troubleshooting & Monitoring**  
+- `kubectl get events` – Get cluster events  
+- `kubectl top pods` – Show resource usage of pods  
+- `kubectl describe pod <pod-name>` – Get detailed pod information  
+- `kubectl logs -f <pod-name>` – Stream real-time logs  
+
+---
+
+## **Kubernetes Deployment Strategies for DevOps Engineers**  
+
+### **1. Recreate Deployment**  
+- **Description:** Stops the old version and starts the new one.  
+- **Pros:** Simple and easy to implement.  
+- **Cons:** Causes downtime.  
+- **Use Case:** When downtime is acceptable for updates.  
+
+```yaml
+strategy:
+  type: Recreate
+```
+
+---
+
+### **2. Rolling Update (Default in Kubernetes)**  
+- **Description:** Gradually replaces old pods with new ones.  
+- **Pros:** No downtime, easy rollback.  
+- **Cons:** Takes time for complete rollout.  
+- **Use Case:** Recommended for most applications.  
+
+```yaml
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+    maxSurge: 1
+```
+
+**Commands:**  
+- `kubectl rollout status deployment myapp` – Check rollout progress  
+- `kubectl rollout history deployment myapp` – View rollout history  
+- `kubectl rollout undo deployment myapp` – Rollback to the previous version  
+
+---
+
+### **3. Blue-Green Deployment**  
+- **Description:** Runs two environments (blue = current, green = new). The traffic is switched after validation.  
+- **Pros:** Instant rollback, no downtime.  
+- **Cons:** Requires double the resources.  
+- **Use Case:** Suitable for critical applications with strict uptime requirements.  
+
+```yaml
+spec:
+  selector:
+    matchLabels:
+      app: myapp
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: myapp
+        version: blue
+```
+
+**Steps:**  
+1. Deploy the **green version** alongside the **blue version**.  
+2. Test the **green version**.  
+3. Switch traffic from blue to green using **Kubernetes Services**.  
+4. Delete the blue version after confirmation.  
+
+---
+
+### **4. Canary Deployment**  
+- **Description:** Deploys the new version to a small percentage of users before full rollout.  
+- **Pros:** Reduces risk of failures.  
+- **Cons:** Requires traffic splitting setup.  
+- **Use Case:** Ideal for testing new features gradually.  
+
+```yaml
+strategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 0
+    maxSurge: 1
+```
+
+**Steps:**  
+1. Deploy a small percentage of pods (e.g., 10%) with the new version.  
+2. Monitor performance.  
+3. Gradually increase the percentage of new pods.  
+
+---
+
+### **5. A/B Testing Deployment**  
+- **Description:** Directs different user groups to different application versions.  
+- **Pros:** Provides user behavior insights.  
+- **Cons:** Needs advanced traffic management.  
+- **Use Case:** Testing UI/UX changes with real users.  
+
+**Setup with Ingress Controller:**  
+```yaml
+rules:
+- host: myapp.example.com
+  http:
+    paths:
+    - path: /v1
+      backend:
+        serviceName: myapp-v1
+        servicePort: 80
+    - path: /v2
+      backend:
+        serviceName: myapp-v2
+        servicePort: 80
+```
+
+---
+
+## **Best Practices for Kubernetes in DevOps**  
+✔ **Use Namespaces** to manage resources efficiently.  
+✔ **Implement Resource Limits** to prevent excessive resource usage.  
+✔ **Use ConfigMaps & Secrets** for configuration management.  
+✔ **Enable Health Checks** (Liveness and Readiness Probes).  
+✔ **Leverage Horizontal Pod Autoscaling** for automatic scaling.  
+✔ **Monitor the Cluster** using Prometheus, Grafana, and Kubernetes Dashboard.  
+✔ **Automate Deployments** with GitOps (ArgoCD, FluxCD) and CI/CD pipelines (Jenkins, GitHub Actions).  
+
+---
+
+### **Summary**  
+✅ **Essential K8s Commands** – Manage clusters, nodes, pods, deployments, and networking.  
+✅ **Deployment Strategies** – Recreate, Rolling Updates, Blue-Green, Canary, A/B Testing.  
+✅ **Best Practices** – Secure and optimize Kubernetes for DevOps.  
+
+Would you like specific YAML configurations or a **CI/CD pipeline example** for Kubernetes deployments? 🚀

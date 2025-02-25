@@ -1,0 +1,88 @@
+### **Docker for DevOps Engineers**  
+Docker is a containerization platform that allows developers and DevOps engineers to package applications and their dependencies into portable containers. It helps in **CI/CD, microservices, and cloud deployments** by ensuring consistency across environments.
+
+---
+
+### **Key Docker Concepts**  
+- **Images**: Read-only templates used to create containers.  
+- **Containers**: Running instances of Docker images.  
+- **Dockerfile**: A script containing instructions to build an image.  
+- **Volumes**: Persistent storage for containers.  
+- **Networks**: Enable communication between containers.  
+- **Docker Compose**: Tool for managing multi-container applications.  
+- **Docker Registry**: Stores Docker images (e.g., Docker Hub, AWS ECR).  
+
+---
+
+### **Essential Docker Commands for DevOps**  
+
+#### **1. Docker Installation & Service Management**  
+- `docker --version` – Check Docker version  
+- `sudo systemctl start docker` – Start Docker service  
+- `sudo systemctl stop docker` – Stop Docker service  
+- `sudo systemctl restart docker` – Restart Docker service  
+- `sudo systemctl enable docker` – Enable Docker to start on boot  
+
+#### **2. Working with Docker Images**  
+- `docker pull <image>` – Download an image from a registry  
+- `docker images` – List available images  
+- `docker rmi <image>` – Remove an image  
+- `docker build -t myapp:latest .` – Build an image from a Dockerfile  
+- `docker tag myapp:latest myrepo/myapp:v1` – Tag an image for pushing  
+- `docker push myrepo/myapp:v1` – Push an image to a registry  
+
+#### **3. Running and Managing Containers**  
+- `docker run -d --name mycontainer myapp` – Run a container in detached mode  
+- `docker ps` – List running containers  
+- `docker ps -a` – List all containers (including stopped ones)  
+- `docker stop <container>` – Stop a running container  
+- `docker start <container>` – Start a stopped container  
+- `docker restart <container>` – Restart a container  
+- `docker rm <container>` – Remove a container  
+- `docker exec -it <container> bash` – Access a running container’s shell  
+- `docker logs -f <container>` – View real-time logs of a container  
+
+#### **4. Managing Docker Volumes (Persistent Storage)**  
+- `docker volume create myvolume` – Create a volume  
+- `docker volume ls` – List all volumes  
+- `docker volume inspect myvolume` – Inspect volume details  
+- `docker run -d -v myvolume:/data myapp` – Attach a volume to a container  
+- `docker volume rm myvolume` – Remove a volume  
+
+#### **5. Networking in Docker**  
+- `docker network ls` – List available networks  
+- `docker network create mynetwork` – Create a custom network  
+- `docker network inspect mynetwork` – View network details  
+- `docker run -d --network mynetwork myapp` – Run a container in a specific network  
+- `docker network rm mynetwork` – Remove a network  
+
+#### **6. Docker Compose (For Multi-Container Applications)**  
+- `docker-compose up -d` – Start services in detached mode  
+- `docker-compose down` – Stop and remove containers, networks, and volumes  
+- `docker-compose ps` – List running services  
+- `docker-compose logs -f` – View logs for all services  
+
+#### **7. Docker Registry (Pushing & Pulling Images)**  
+- `docker login` – Authenticate with a Docker registry  
+- `docker tag myapp:latest myrepo/myapp:v1` – Tag an image  
+- `docker push myrepo/myapp:v1` – Push an image to the registry  
+- `docker pull myrepo/myapp:v1` – Pull an image from the registry  
+
+#### **8. Docker Cleanup & System Maintenance**  
+- `docker system prune -a` – Remove all unused data (containers, images, volumes)  
+- `docker container prune` – Remove all stopped containers  
+- `docker image prune` – Remove unused images  
+- `docker volume prune` – Remove unused volumes  
+
+---
+
+### **Docker Best Practices for DevOps**  
+✔ Use **multi-stage builds** to optimize image size.  
+✔ Always specify **image versions** instead of `latest` to avoid unexpected updates.  
+✔ Use **volumes for persistent data storage**.  
+✔ Implement **health checks** in your Dockerfiles (`HEALTHCHECK CMD curl -f http://localhost || exit 1`).  
+✔ Scan images for vulnerabilities using **Docker Scan or Trivy**.  
+✔ Leverage **Docker Compose** for managing multiple services.  
+✔ Push images to a **private registry (ECR, GCR, or Docker Hub)** for security.  
+
+These commands and best practices will help you efficiently manage Docker in your DevOps workflow. Let me know if you need deeper insights into specific Docker use cases! 🚀

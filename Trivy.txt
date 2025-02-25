@@ -1,0 +1,161 @@
+### **Trivy for DevOps Engineers**  
+**Trivy** is an open-source security scanner developed by **Aqua Security**. It is widely used in **DevOps pipelines** to scan **container images, filesystems, Git repositories, Kubernetes clusters, and cloud resources** for **vulnerabilities, misconfigurations, and secrets**.
+
+---
+
+## **1. Installing Trivy**  
+
+### **📌 Install on Linux**  
+```sh
+sudo apt install wget -y
+wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_Linux_amd64.tar.gz
+tar -xvf trivy_Linux_amd64.tar.gz
+sudo mv trivy /usr/local/bin/
+```
+
+### **📌 Install on MacOS (Homebrew)**  
+```sh
+brew install aquasecurity/trivy/trivy
+```
+
+### **📌 Install on Windows**  
+1. Download from [GitHub Releases](https://github.com/aquasecurity/trivy/releases).  
+2. Extract and add `trivy.exe` to the system `PATH`.  
+
+---
+
+## **2. Scanning with Trivy**  
+
+### **🔹 Scan a Docker Image**  
+```sh
+trivy image nginx:latest
+```
+
+### **🔹 Scan a Local Container Image**  
+```sh
+trivy image --input /path/to/image.tar
+```
+
+### **🔹 Scan a Filesystem for Vulnerabilities**  
+```sh
+trivy fs /path/to/project
+```
+
+### **🔹 Scan a Git Repository**  
+```sh
+trivy repo https://github.com/example/repo.git
+```
+
+### **🔹 Scan a Kubernetes Cluster**  
+```sh
+trivy k8s cluster
+```
+
+### **🔹 Scan a Kubernetes Namespace**  
+```sh
+trivy k8s --namespace my-namespace
+```
+
+### **🔹 Scan an AWS Account**  
+```sh
+trivy aws --region us-east-1
+```
+
+---
+
+## **3. Trivy Scan Output Formats**  
+
+### **🔹 Generate JSON Report**  
+```sh
+trivy image --format json -o report.json nginx:latest
+```
+
+### **🔹 Generate CSV Report**  
+```sh
+trivy image --format template --template "@templates/csv.tpl" -o report.csv nginx:latest
+```
+
+### **🔹 Generate an HTML Report**  
+```sh
+trivy image --format template --template "@templates/html.tpl" -o report.html nginx:latest
+```
+
+---
+
+## **4. Integrating Trivy in CI/CD Pipelines**  
+
+### **📌 Integration in Jenkins Pipeline**
+```groovy
+pipeline {
+    agent any
+    stages {
+        stage('Trivy Scan') {
+            steps {
+                sh 'trivy image --exit-code 1 nginx:latest'
+            }
+        }
+    }
+}
+```
+
+### **📌 Integration in GitHub Actions**
+```yaml
+jobs:
+  security_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Trivy
+        run: |
+          sudo apt install wget -y
+          wget https://github.com/aquasecurity/trivy/releases/latest/download/trivy_Linux_amd64.tar.gz
+          tar -xvf trivy_Linux_amd64.tar.gz
+          sudo mv trivy /usr/local/bin/
+      
+      - name: Scan Image
+        run: trivy image nginx:latest
+```
+
+---
+
+## **5. Trivy Configuration & Database Updates**  
+
+### **🔹 Update the Vulnerability Database**  
+```sh
+trivy --update
+```
+
+### **🔹 Configure Trivy to Ignore Low/Medium Vulnerabilities**  
+```sh
+trivy image --severity HIGH,CRITICAL nginx:latest
+```
+
+### **🔹 Suppress False Positives with Ignore File**  
+1. Create `.trivyignore`  
+```sh
+CVE-2024-1234
+CVE-2024-5678
+```
+2. Run Trivy with ignore file  
+```sh
+trivy image --ignorefile .trivyignore nginx:latest
+```
+
+---
+
+## **6. Best Practices for DevOps**  
+
+✔ **Automate Trivy scans in CI/CD pipelines**  
+✔ **Integrate Trivy with Kubernetes and Docker security workflows**  
+✔ **Monitor cloud security with Trivy AWS/GCP/Azure scanning**  
+✔ **Regularly update the vulnerability database**  
+✔ **Use Trivy ignore files to filter false positives**  
+
+---
+
+## **7. Summary**  
+✅ **Installation** – Linux, MacOS, Windows  
+✅ **Essential Commands** – Scanning images, filesystems, Git, Kubernetes, and cloud  
+✅ **CI/CD Integration** – Jenkins, GitHub Actions  
+✅ **Security Best Practices** – Automate, monitor, and update Trivy scans  
+
+Would you like help **integrating Trivy with SonarQube or Kubernetes?** 🚀
